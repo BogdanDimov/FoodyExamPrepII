@@ -1,0 +1,60 @@
+## Build artifacts
+bin/
+obj/
+[Bb]uild/
+[Ll]og/
+logs/
+
+## VS / Rider / tooling
+.vs/
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+## NuGet
+*.nupkg
+*.snupkg
+.nuget/
+packages/
+# If you use package restore, you can ignore the packages folder (uncomment if needed)
+# packages/
+
+## Test / coverage
+TestResults/
+*.trx
+coverage/
+coverage*.json
+coverage*.xml
+.coverage
+.coveragexml
+*.coverage
+*.lcov
+
+## Generated files
+*.cache
+*.ilk
+*.pdb
+
+## OS / misc
+[Dd]esktop.ini
+[Tt]humbs.db
+.DS_Store
+
+## Resharper / Rider
+_ReSharper*/
+*.DotSettings.user
+
+## Dotnet local tools
+.dotnet-tools/
+
+## User secrets (if later added)
+**/secrets.json
+
+## JetBrains caches
+.jb/
+
+## Terraform / CI temp (if accidentally added)
+*.tfstate
+*.tfstate.*
