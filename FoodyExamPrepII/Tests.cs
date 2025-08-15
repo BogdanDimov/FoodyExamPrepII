@@ -91,10 +91,10 @@ public class Tests
     public void CreateFood()
     {
         var request = new RestRequest("/api/Food/Create", Method.Post);
-        request.AddJsonBody(new
+        request.AddJsonBody(new FoodDTO
         {
             Name = "Test Food",
-            Description = "Test Description"
+            Description = "This is a test food description.",
         });
         var response = _client.Execute(request);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.Created));
@@ -128,7 +128,7 @@ public class Tests
         var response = _client.Execute(request);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         var content = response.Content ?? string.Empty;
-        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content);
         Assert.That(json.Msg, Is.EqualTo("Successfully edited"));
     }
 
@@ -160,7 +160,7 @@ public class Tests
         var response = _client.Execute(request);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.OK));
         var content = response.Content ?? string.Empty;
-        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content);
         Assert.That(json.Msg, Is.EqualTo("Deleted successfully!"));
     }
 
@@ -202,7 +202,7 @@ public class Tests
         var response = _client.Execute(request);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.NotFound));
         var content = response.Content ?? string.Empty;
-        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content);
         Assert.That(json.Msg, Is.EqualTo("No food revues..."));
     }
 
@@ -218,8 +218,7 @@ public class Tests
         var response = _client.Execute(request);
         Assert.That(response.StatusCode, Is.EqualTo(HttpStatusCode.BadRequest));
         var content = response.Content ?? string.Empty;
-        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        var json = JsonSerializer.Deserialize<ApiResponseDTO>(content);
         Assert.That(json.Msg, Is.EqualTo("Unable to delete this food revue!"));
     }
-
 }

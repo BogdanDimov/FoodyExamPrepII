@@ -1,7 +1,11 @@
-﻿namespace FoodyExamPrepII.DTOs;
+﻿using System.Text.Json.Serialization;
+
+namespace FoodyExamPrepII.DTOs;
 
 public class ApiResponseDTO
 {
+    [JsonPropertyName("msg")]
     public string Msg { get; set; } = string.Empty;
-    public string? FoodId { get; set; } = null;
+    [JsonPropertyName("foodId")]
+    public string? FoodId { get; set; }
 }
