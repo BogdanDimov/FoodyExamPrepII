@@ -8,68 +8,23 @@ namespace FoodyExamPrepII;
 
 public class Tests
 {
-    private static RestClient? _client;
     private const string BaseUrl = "http://softuni-qa-loadbalancer-2137572849.eu-north-1.elb.amazonaws.com:86";
+    private static RestClient? _client;
 
-    private const string UserName = "bobo19@testa.com";
-    private const string Password = "123456789";
-
-    private string? _token;
     private string? _foodId;
 
     [SetUp]
     public void Setup()
     {
-        _client = new RestClient(BaseUrl);
-
-        var requestBody = new
-        {
-            userName = UserName,
-            firstName = "Bobo",
-            midName = "Middle",
-            lastName = "Test",
-            email = UserName,
-            password = Password,
-            rePassword = Password
-        };
-        var request = new RestRequest("/api/User/Create", Method.Post);
-        request.AddJsonBody(requestBody);
-        var response = _client.Execute(request);
-
-        if (response.StatusCode == HttpStatusCode.OK
-            || JsonSerializer.Deserialize<JsonElement>(response.Content ?? string.Empty).GetString() ==
-            "Email address already exist!")
-        {
-            request = new RestRequest("/api/User/Authentication", Method.Post);
-            request.AddJsonBody(new { userName = UserName, password = Password });
-            response = _client.Execute(request);
-            if (response.StatusCode == HttpStatusCode.OK)
-            {
-                var content = response.Content ?? string.Empty;
-                var json = JsonSerializer.Deserialize<JsonElement>(content);
-                if (json.TryGetProperty("accessToken", out var tokenElement))
-                {
-                    _token = tokenElement.GetString() ?? string.Empty;
-                }
-                else
-                {
-                    throw new Exception("Token not found in the response.");
-                }
-            }
-        }
-        else
-        {
-            throw new Exception("Failed to create user.");
-        }
-
-        if (string.IsNullOrEmpty(_token))
+        var token = GetAuthToken();
+        if (string.IsNullOrEmpty(token))
         {
             throw new Exception("Authentication failed, token is null or empty.");
         }
 
         var options = new RestClientOptions(BaseUrl)
         {
-            Authenticator = new JwtAuthenticator(_token)
+            Authenticator = new JwtAuthenticator(token)
         };
 
         _client = new RestClient(options);
@@ -79,15 +34,14 @@ public class Tests
     public void TearDown()
     {
         _client?.Dispose();
-        _client = null;
     }
 
-    [Test, Order(1)]
     //Create a New Food with the Required Fields
     // · Create a test to send a POST request to add a new food.
     // · Assert that the response status code is Created (201).
     // · Assert that the response body contains a foodId property.
     // · Store the foodId of the created food in a static member of the test class to maintain its value between test runs.
+    [Test, Order(1)]
     public void CreateFood()
     {
         var request = new RestRequest("/api/Food/Create", Method.Post);
@@ -220,5 +174,46 @@ public class Tests
         var content = response.Content ?? string.Empty;
         var json = JsonSerializer.Deserialize<ApiResponseDTO>(content);
         Assert.That(json.Msg, Is.EqualTo("Unable to delete this food revue!"));
+    }
+
+    private static string? GetAuthToken()
+    {
+        const string userName = "bobo19@testa.com";
+        const string password = "123456789";
+
+        var client = new RestClient(BaseUrl);
+
+        var requestBody = new
+        {
+            userName,
+            firstName = "Bobo",
+            midName = "Middle",
+            lastName = "Test",
+            email = userName,
+            password,
+            rePassword = password
+        };
+        var request = new RestRequest("/api/User/Create", Method.Post);
+        request.AddJsonBody(requestBody);
+        var response = client.Execute(request);
+
+        string? token = null;
+        if (response.StatusCode == HttpStatusCode.OK || JsonSerializer.Deserialize<JsonElement>(response.Content ?? string.Empty).GetString() == "Email address already exist!")
+        {
+            request = new RestRequest("/api/User/Authentication", Method.Post);
+            request.AddJsonBody(new { userName, password });
+            response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var content = response.Content ?? string.Empty;
+                var json = JsonSerializer.Deserialize<JsonElement>(content);
+                if (json.TryGetProperty("accessToken", out var tokenElement))
+                {
+                    token = tokenElement.GetString() ?? string.Empty;
+                }
+            }
+        }
+
+        return token;
     }
 }
